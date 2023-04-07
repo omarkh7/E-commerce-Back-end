@@ -34,7 +34,16 @@ const productSchema = new Schema({
         type: Number,
         required: true
     },
-    wishlist: { },
+    wishlist: {
+        type: [{
+            productId: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Product'
+            },
+            quantity: Number
+        }],
+        default: []
+    },
     category_id: [{
         type: Schema.Types.ObjectId,
         ref: 'Category'
