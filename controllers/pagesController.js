@@ -1,6 +1,7 @@
 const Page = require('../models/pagesModel.js')
-// const Product = require('../models/productModel.js')
 const asyncHandler = require('express-async-handler');
+
+
 
 //getting all Pages
 const getAllPages = asyncHandler(async(req, res)=>{
@@ -33,6 +34,7 @@ const getPage = asyncHandler(async(req, res) => {
   });
 
   const postPage = asyncHandler(async(req, res) => {
+    console.log("req" ,req.file)
 
     const Pages = req.body.type;
     
@@ -40,18 +42,17 @@ const getPage = asyncHandler(async(req, res) => {
         return res.status(400).send({error: 'Please fill all fields'})
     }
   
-
-    
     const newPage = await Page.create({
         type: Pages,
         title: req.body.title,
         description: req.body.description,
-        // image: req.file.filename,
+        image: req.file.filename,
+      
     })
 
-    res.status(200).json({
+    res.status(200).json({ 
         message:"Posted Successfully",
-        Status:200,
+        Status:200,   
         data: newPage,
     })
 });
