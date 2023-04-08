@@ -34,7 +34,7 @@ const getPage = asyncHandler(async(req, res) => {
   });
 
   const postPage = asyncHandler(async(req, res) => {
-    console.log("req" ,req.file)
+    // console.log("req" ,req.file)
 
     const Pages = req.body.type;
     
