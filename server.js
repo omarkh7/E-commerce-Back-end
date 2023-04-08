@@ -6,6 +6,7 @@ require('dotenv').config();
 const connectDB = require('./config/db');
 const pagesRoute = require('./routes/pagesRoute.js');
 const { postPage } = require('./controllers/pagesController');
+const CategoryRoute = require('./routes/categoryRoute')
 const PORT = process.env.PORT || 3000; 
 
 // To parse URL encoded data
@@ -22,7 +23,8 @@ app.use('/images', express.static('images'));
 app.use(express.json());
 app.use("/pages", pagesRoute)
 app.use("/pages/:id", pagesRoute)
-
+app.use("/category", CategoryRoute)
+app.use("/category/:id", CategoryRoute)
 
 app.listen(PORT, () => {
     connectDB();
