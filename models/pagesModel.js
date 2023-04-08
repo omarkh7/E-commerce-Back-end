@@ -14,10 +14,9 @@ const pagesSchema = new Schema({
     description: {
         type: String,
     },
-    image: {
-        type: String
+    image: { type: String
+    
     },
-
 });
 
 const Pages = mongoose.model('Pages', pagesSchema);
