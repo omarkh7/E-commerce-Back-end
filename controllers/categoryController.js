@@ -2,6 +2,10 @@ const Category = require('../models/categoryModel.js')
 const Product = require('../models/productModel.js')
 const asyncHandler = require('express-async-handler');
 
+
+
+// ee
+
 //getting all categories
 const getAllCategories = asyncHandler(async(req, res)=>{
     const all_Categories = await Category.find();
