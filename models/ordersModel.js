@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 
-const productSchema = new Schema({
+const orderSchema = new Schema({
     user_id: [
         {
             type: Schema.Types.ObjectId,
@@ -41,5 +41,5 @@ const productSchema = new Schema({
 
 });
 
-const Product = mongoose.model('Product', productSchema);
-module.exports = Product;
+const Order = mongoose.model('Order', orderSchema);
+module.exports = Order;
