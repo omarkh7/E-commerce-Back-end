@@ -48,7 +48,7 @@ const getCategory = asyncHandler(async(req, res) => {
     }
     const newCategory = await Category.create({
         name: category,
-        product_id: req.body.id_product
+        product_id: req.body.product_id
 
     })
 
