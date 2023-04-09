@@ -66,7 +66,7 @@ exports.newOrder = asyncHandler(async (req, res, next) => {
 
 
 //***************************** Get order by id *************************//
-///********/
+///*******/
 exports.getSingleOrder = asyncHandler(async (req, res, next) => {
     try {
         const order = await Order.findById(req.params.id)
