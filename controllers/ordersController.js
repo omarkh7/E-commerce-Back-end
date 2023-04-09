@@ -5,7 +5,8 @@ const Product = require('../models/productModel');
 
 
 
-//************Create new Order************//
+//************************Create new Order******************************//
+///********/
 exports.newOrder = asyncHandler(async (req, res, next) => {
 
     try {
@@ -64,7 +65,8 @@ exports.newOrder = asyncHandler(async (req, res, next) => {
 
 
 
-//************Get order by id************//
+//***************************** Get order by id *************************//
+///********/
 exports.getSingleOrder = asyncHandler(async (req, res, next) => {
     try {
         const order = await Order.findById(req.params.id)
@@ -84,7 +86,8 @@ exports.getSingleOrder = asyncHandler(async (req, res, next) => {
 
 
 
-//**********Find all orders with authorized admin************/
+//********************** Find all orders with authorized admin **********************//
+///********/
 exports.getAllOrders = asyncHandler(async (req, res, next) => {
 
     try {
@@ -102,7 +105,8 @@ exports.getAllOrders = asyncHandler(async (req, res, next) => {
 
 
 
-//************Delete order by Id ************//
+//******************************** Delete order by Id ********************************//
+///********//
 exports.deleteOrder = asyncHandler(async (req, res, next) => {
 
     try {
@@ -120,7 +124,8 @@ exports.deleteOrder = asyncHandler(async (req, res, next) => {
 
 
 
-//************Update order by id************///
+//*********************************Update order by id***********************************///
+///********/
 exports.updateOrderCart = asyncHandler(async (req, res, next) => {
 
     const cart = req.body.cart;
