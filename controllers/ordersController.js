@@ -2,27 +2,29 @@ const Order = require('../models/ordersModel')
 const asyncHandler = require('express-async-handler')
 
 
-
-//****Create new Order****//
+//************Create new Order************//
 exports.newOrder = asyncHandler(async (req, res, next) => {
     try {
-        const {user_id,
+        const { user_id,
             status,
             payment_status,
-            cart,
-            total_price,
-            } = req.body;
+            cart
+        } = req.body;
+
+        const total_price = cart.reduce((total, item) => {
+            return total + item.price * item.quantity;
+        }, 0);
 
         const order = await Order.create({
             user_id,
             status,
             payment_status,
             cart,
-            total_price,  
-       
+            total_price,
+
         });
 
-        res.status(200).json({ succes: true, order })
+        res.status(200).json({ success: true, order })
     }
 
     catch (error) {
@@ -35,14 +37,15 @@ exports.newOrder = asyncHandler(async (req, res, next) => {
 
 
 
-//***Get order by id***//
+//************Get order by id************//
 exports.getSingleOrder = asyncHandler(async (req, res, next) => {
     try {
-        const order = await Order.findById(req.params.id)
+        const order = await Order.findById(req.params.id).populate('cart.product_id')
 
         if (!order) return res.json({ message: "Not an order" })
 
-        res.status(200).json({ succes: true, order })
+
+        res.status(200).json({ success: true, order })
     }
 
     catch (error) {
@@ -54,7 +57,7 @@ exports.getSingleOrder = asyncHandler(async (req, res, next) => {
 
 
 
-//****Find all orders with authorized admin*****/
+//************Find all orders with authorized admin************/
 exports.getAllOrders = asyncHandler(async (req, res, next) => {
 
     try {
@@ -62,7 +65,7 @@ exports.getAllOrders = asyncHandler(async (req, res, next) => {
 
         if (!orders) return res.json({ message: "No orders" })
 
-        res.status(200).json({ succes: true, orders })
+        res.status(200).json({ success: true, orders })
     }
     catch (error) {
         console.error(error);
@@ -72,12 +75,12 @@ exports.getAllOrders = asyncHandler(async (req, res, next) => {
 
 
 
-//****Delete order by Id ****//
+//************Delete order by Id ************//
 exports.deleteOrder = asyncHandler(async (req, res, next) => {
-    
+
     try {
         const order = await Order.findByIdAndRemove(req.params.id)
-        
+
         if (!order) return res.json({ message: "No order" })
 
         res.status(200).json('Order is deleted')
@@ -90,25 +93,37 @@ exports.deleteOrder = asyncHandler(async (req, res, next) => {
 
 
 
-//****Update Order ****//
-exports.updateOrder = asyncHandler(async (req, res, next) => {
-    
-    const order = await Order.findById(req.params.id)
-    
-    if (!order) return res.json({ message: "No order" })
+//************Update order by id************///
+exports.updateOrderCart = asyncHandler(async (req, res, next) => {
 
-    if (order.status == false ) {
-        return res.json({ message: "Order is cancelled" })
-    }
-    else if (order.payment_status == true) {
-        return res.json({ message: "Order is paid" })
-    }
-    else if (order.status == true || order.payment_status == false) {
-        
-        order.cart.forEach(async (element) => {
-            await updateStock(element.quantity,element.price)
-            
-        });
+    const cart = req.body.cart;
+    const order = await Order.findById(req.params.id);
+
+
+    if (!order) {
+        return res.status(404).json({ message: "Order not found" });
     }
 
-})
+
+    const total_price = cart.reduce((total, item) => {
+        return total + item.price * item.quantity;
+    }, 0);
+
+
+    order.total_price = total_price;
+    order.cart = cart;
+   
+
+    const updatedOrder = await order.save();
+
+
+    // Populate the cart.product_id field in the updated order object
+    await Order.findById(updatedOrder._id).populate('cart.product_id');
+
+    res.status(200).json({ message: "Order updated", order: updatedOrder });
+});
+
+
+
+
+
