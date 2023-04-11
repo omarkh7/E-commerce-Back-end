@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
-
+const bcrypt = require('bcryptjs')
+const { isEmail } = require('validator');
 const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
@@ -11,16 +12,11 @@ const userSchema = new Schema({
         type: String,
         required: true,
         unique: true,
+        validate:[isEmail,'Please enter a valid email.']
     },
     password: {
         type: String,
         required: true
-    },
-    validate_password: {
-        validate: {
-            validator: () => Promise.resolve(false),
-            message: 'password validation failed'
-        }
     },
     phoneNumber: {
         type: Number,
@@ -31,15 +27,25 @@ const userSchema = new Schema({
         required: true
     },
     role: {
-        type: [{
             type: String,
             enum: ["user", "admin"],
-            default: ["user"]
-        }
-        ]
+            default: "user",
+        
+        
     },
 
 });
+
+// userSchema.pre('save', async function (next) {
+//     if (!this.isModified('password')) {
+//        next()
+//     }
+//     this.password=await bcrypt.hash(this.password,10)
+// });
+
+// userSchema.methods.comparePassword = async function (oldPassword) {
+//     return await bcrypt.compare(oldPassword, this.password);
+// }
 
 const User = mongoose.model('User', userSchema);
 module.exports = User;

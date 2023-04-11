@@ -5,11 +5,12 @@ const { newOrder,
     deleteOrder,
     updateOrderCart } = require('../controllers/ordersController');
 
+const { isAuthenticated} = require('../middleware/userAuthMiddleware');
 const router = express.Router();
 
 router.route('/orders').post(newOrder)
-router.route('/order/:id').get(getSingleOrder)
-router.route('/authorized/orders').get(getAllOrders)
-router.route('/authorized/orders/:id').delete(deleteOrder).put(updateOrderCart)
+router.route('/order/:id').get(isAuthenticated,getSingleOrder)
+router.route('/authorized/orders').get(isAuthenticated,getAllOrders)
+router.route('/authorized/orders/:id').delete(isAuthenticated,deleteOrder).put(isAuthenticated,updateOrderCart)
 
 module.exports = router;

@@ -7,6 +7,8 @@ require('dotenv').config();
 const connectDB = require('./config/db');
 const PORT = process.env.PORT || 3000; 
 const orderRoute=require('./routes/orderRoute')
+const userRoute = require('./routes/userRoute');
+
 
 // To parse URL encoded data
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -17,8 +19,9 @@ app.use(morgan('common'));
 // app.use(Router);
 app.use(express.json());
 
-app.use('/api',orderRoute);
 
+app.use('/api',orderRoute);
+app.use('/api', userRoute);
 
 app.listen(PORT, () => {
     connectDB();

@@ -10,14 +10,19 @@ const Product = require('../models/productModel');
 exports.newOrder = asyncHandler(async (req, res, next) => {
 
     try {
-        const { user_id,
+        const {
             status,
             payment_status,
-            cart
+            cart,
         } = req.body;
 
         const orderItems = [];
 
+        console.log(cart)
+
+        if (!cart ) {
+            return res.status(400).json({ error: 'Cart is not defined' });
+        }
         //loop in the cart to check the quantity available of each product 
         for (let i = 0; i < cart.length; i++) {
             const product = await Product.findById(cart[i].product_id)
@@ -45,7 +50,7 @@ exports.newOrder = asyncHandler(async (req, res, next) => {
         }, 0);
 
         const order = await Order.create({
-            user_id,
+            user_id: req.user,
             status,
             payment_status,
             cart: orderItems,
@@ -69,7 +74,7 @@ exports.newOrder = asyncHandler(async (req, res, next) => {
 ///*******/
 exports.getSingleOrder = asyncHandler(async (req, res, next) => {
     try {
-        const order = await Order.findById(req.params.id)
+        const order = await Order.findById(req.params.id).populate('cart.product_id');
 
         if (!order) return res.json({ message: "Not an order" })
 
@@ -91,7 +96,7 @@ exports.getSingleOrder = asyncHandler(async (req, res, next) => {
 exports.getAllOrders = asyncHandler(async (req, res, next) => {
 
     try {
-        const orders = await Order.find()
+        const orders = await Order.find().populate('cart.product_id');
 
         if (!orders) return res.json({ message: "No orders" })
 
