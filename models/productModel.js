@@ -37,7 +37,7 @@ const productSchema = new Schema({
     wishlist: {
         type: [{
             productId: {
-                type: mongoose.Schema.Types.ObjectId,
+                type: Schema.Types.ObjectId,
                 ref: 'Product'
             },
             quantity: Number
