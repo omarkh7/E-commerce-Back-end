@@ -3,13 +3,13 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 
-const productSchema = new Schema({
-    user_id: [
+const orderSchema = new Schema({
+    user_id: 
         {
             type: Schema.Types.ObjectId,
             ref: 'User'
         }
-    ],
+    ,
     status: {
         type: Boolean,
         default: false
@@ -21,7 +21,7 @@ const productSchema = new Schema({
     cart: [{
         product_id: [
             {
-                type: Schema.Types.ObjectId,
+                type:Schema.Types.ObjectId,
                 ref: 'Product'
             }
         ], quantity: {
@@ -41,5 +41,5 @@ const productSchema = new Schema({
 
 });
 
-const Product = mongoose.model('Product', productSchema);
-module.exports = Product;
+const Order = mongoose.model('Order', orderSchema);
+module.exports = Order;
