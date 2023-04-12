@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-
+const Product = require('./productModel')
 const Schema = mongoose.Schema;
 
 
@@ -10,7 +10,7 @@ const categorySchema = new Schema({
     },
     product_id: [{
         type: Schema.Types.ObjectId,
-        ref: 'Product'
+        ref: Product
     }
     ]
 
