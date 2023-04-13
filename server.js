@@ -10,7 +10,7 @@ const CategoryRoute = require('./routes/categoryRoute')
 const PORT = process.env.PORT || 3000; 
 const orderRoute=require('./routes/orderRoute')
 const userRoute = require('./routes/userRoute');
-
+const productsRoute = require('./routes/productRoute');
 
 // To parse URL encoded data
 app.use(express.json());
@@ -30,6 +30,7 @@ app.use("/category", CategoryRoute)
 app.use("/category/:id", CategoryRoute)
 app.use('/api',orderRoute);
 app.use('/api', userRoute);
+app.use('/api/products', productsRoute);
 
 app.listen(PORT, () => {
     connectDB();

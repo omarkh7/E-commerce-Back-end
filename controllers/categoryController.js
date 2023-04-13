@@ -22,6 +22,7 @@ const getAllCategories = asyncHandler(async(req, res)=>{
 const getCategory = asyncHandler(async(req, res) => {
    
     const get_Category = await Category.findById(req.params.id);
+    
       // console.log(get_Category)
     if(!get_Category)
     {

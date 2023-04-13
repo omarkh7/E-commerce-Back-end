@@ -11,10 +11,10 @@ const productSchema = new Schema({
     description: {
         type: String,
     },
-    attribute: [{
+    attribute: {
         size: Number,
         color: String
-    }],
+    },
     feature_image: {
         type: String,
         required: true
