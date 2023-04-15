@@ -3,11 +3,11 @@ const PagesControllers = require('../controllers/pagesController.js');
 const upload = require('../middleware/uploadMiddleware.js');
 const router = express.Router();
 
-router.route("/").get(PagesControllers.getAllPages);
-router.route("/:id").get(PagesControllers.getPage);
-router.route("/:id").put(PagesControllers.updatePage);
-router.route("/:id").delete(PagesControllers.erasePage);
-router.route("/").post(upload.single('image'), PagesControllers.postPage);
+router.route("/getallpages").get(PagesControllers.getAllPages);
+router.route("/getallpagesbyid/:id").get(PagesControllers.getPage);
+router.route("/createpage").post(upload.single('image'), PagesControllers.postPage);
+router.route("/updatepage/:id").put(PagesControllers.updatePage);
+router.route("/deletepage/:id").delete(PagesControllers.erasePage);
 
 
 
