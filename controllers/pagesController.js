@@ -68,15 +68,20 @@ const updatePage = asyncHandler(async(req, res) => {
 
   }
 
-    const newUpdate = await Page.findByIdAndUpdate(req.params.id, req.body, {
-        new:true,
-    });
+    // const newUpdate = await Page.findByIdAndUpdate(req.params.id, req.body, {
+    //     new:true,
+    // });
+    update.type=req.body.type
+    update.title=req.body.title
+    update.description=req.body.description
+    update.image=req.body.image
 
+    const updated = await update.save();
     
     res.status(200).json({
         message:"Updated a specific Page",
         status:200,
-        data: newUpdate,
+        data: updated,
     });
 });
 
