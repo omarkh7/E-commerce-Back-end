@@ -1,6 +1,6 @@
 const express = require('express');
 const PagesControllers = require('../controllers/pagesController.js');
-const upload = require('../middleware/upload.middleware.js');
+const upload = require('../middleware/uploadMiddleware.js');
 const router = express.Router();
 
 router.route("/").get(PagesControllers.getAllPages);

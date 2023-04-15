@@ -23,30 +23,30 @@ exports.newOrder = asyncHandler(async (req, res, next) => {
         if (!cart ) {
             return res.status(400).json({ error: 'Cart is not defined' });
         }
-        //loop in the cart to check the quantity available of each product 
+        //loop in the cart to check the countInStock available of each product 
         for (let i = 0; i < cart.length; i++) {
             const product = await Product.findById(cart[i].product_id)
 
-            if (product.quantity < cart[i].quantity) {
-                return res.status(400).json({ error: `The requested quantity ${product.name} is not available` })
+            if (product.countInStock < cart[i].countInStock) {
+                return res.status(400).json({ error: `The requested countInStock ${product.name} is not available` })
             }
 
-            //Decrease the quantity of product 
-            product.quantity -= cart[i].quantity;
+            //Decrease the countInStock of product 
+            product.countInStock -= cart[i].countInStock;
             await product.save();
 
 
             orderItems.push({
                 product_id: product._id,
                 price: product.price,
-                quantity: cart[i].quantity
+                countInStock: cart[i].countInStock
             });
 
         }
 
         //Calculate the total price of each order
         const total_price = cart.reduce((total, item) => {
-            return total + item.price * item.quantity;
+            return total + item.price * item.countInStock;
         }, 0);
 
         const order = await Order.create({
@@ -146,29 +146,29 @@ exports.updateOrderCart = asyncHandler(async (req, res, next) => {
 
     const orderItems = [];
 
-    //loop in the cart to check the quantity available of each product 
+    //loop in the cart to check the countInStock available of each product 
     for (let i = 0; i < cart.length; i++) {
         const product = await Product.findById(cart[i].product_id)
 
-        if (product.quantity < cart[i].quantity) {
-            return res.status(400).json({ error: `The requested quantity ${product.name} is not available` })
+        if (product.countInStock < cart[i].countInStock) {
+            return res.status(400).json({ error: `The requested countInStock ${product.name} is not available` })
         }
 
-        //Decrease the quantity of product 
-        product.quantity -= cart[i].quantity;
+        //Decrease the countInStock of product 
+        product.countInStock -= cart[i].countInStock;
         await product.save();
 
 
         orderItems.push({
             product_id: product._id,
             price: product.price,
-            quantity: cart[i].quantity
+            countInStock: cart[i].countInStock
         });
 
     }
 
     const total_price = cart.reduce((total, item) => {
-        return total + item.price * item.quantity;
+        return total + item.price * item.countInStock;
     }, 0);
 
 
