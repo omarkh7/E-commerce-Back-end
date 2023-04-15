@@ -1,265 +1,179 @@
-const cloudinary = require("cloudinary").v2;
 const Product = require("../models/productModel.js");
 const Category = require("../models/categoryModel.js");
+const mongoose = require("mongoose");
+const asyncHandler = (fn) => (req, res, next) =>
+  Promise.resolve(fn(req, res, next)).catch(next);
+// =============================IMPORTING=================================
 
-// Configure Cloudinary
-cloudinary.config({
-  cloud_name: process.env.CLOUD_NAME,
-  api_key: process.env.API_KEY,
-  api_secret: process.env.API_SECRET,
+// =============================GET PRODUCT=================================
+const getProducts = asyncHandler(async (req, res, next) => {
+  let filter = {};
+  if (req.query.categories) {
+    filter = { category: req.query.categories.split(",") };
+  }
+
+  const productList = await Product.find(filter).populate("category");
+
+  if (!productList) {
+    res.status(500).json({ success: false });
+  }
+
+  res.status(200).json({ success: true, productList });
 });
 
-// Create a new product
+// =============================GET PRODUCT BY ID=================================
+const getProductById = asyncHandler(async (req, res, next) => {
+  const product = await Product.findById(req.params.id).populate("category");
+
+  if (!product) {
+    res.status(500).json({ success: false });
+  }
+  res.send(product);
+});
+
+// =============================GET PRODUCT BY NAME================================
+const getProductsByName = asyncHandler(async (req, res, next) => {
+  const productName = req.params.name;
+  const product = await Product.findOne({ name: productName }).populate(
+    "category"
+  );
+
+  if (!product) {
+    return res.status(404).json({ message: "Product not found" });
+  }
+
+  res.status(200).json(product);
+});
+
+// =============================GET PRODUCT BY CATEGORY ID==============================
+const getProductsByCategoryId = async (req, res, next) => {
+  const { categoryId } = req.params;
+  try {
+    const products = await Product.find({ category: categoryId }).populate(
+      "category"
+    );
+    console.log(products);
+    res.status(200).json({
+      products,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// =============================GET PRODUCT BY CATEGORY NAME =================================
+const getProductsByCategoryName = async (req, res, next) => {
+  const { categoryName } = req.params;
+  try {
+    const category = await Category.findOne({ name: categoryName });
+    if (!category) {
+      return res.status(404).json({
+        message: "Category not found",
+      });
+    }
+    const products = await Product.find({ category: category._id }).populate(
+      "category"
+    );
+    console.log(products);
+    res.status(200).json({
+      products,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// =============================CREATING PRODUCT=================================
 const createProduct = async (req, res, next) => {
   try {
-    const {
-      name,
-      description,
-      attribute,
-      price,
-      quantity,
-      wishlist,
-      category_id,
-    } = req.body;
+    const category = await Category.findById(req.body.category);
+    if (!category) return res.status(400).send("Invalid Category");
 
-    // Upload feature image to Cloudinary
-    const feature_image = await cloudinary.uploader.upload(req.file.path);
+    const file = req.file;
+    if (!file) return res.status(400).send("No image in the request");
 
-    // Upload group images to Cloudinary if provided
-    let group_images;
-    if (req.files) {
-      const results = await Promise.all(
-        req.files.map((file) => cloudinary.uploader.upload(file.path))
-      );
-      group_images = results.map((result) => result.secure_url);
-    }
+    const fileName = file.filename;
+    const basePath = `${req.protocol}://${req.get("host")}/images`;
+    // const Images = req.files.map((file) => `${basePath}/${file.filename}`);
 
-    const product = new Product({
-      name,
-      description,
-      attribute,
-      feature_image: feature_image.secure_url,
-      group_images,
-      status: false,
-      price,
-      quantity,
-      wishlist,
-      category_id,
+    let product = new Product({
+      name: req.body.name,
+      description: req.body.description,
+      attribute: {
+        size: req.body.size,
+        color: req.body.color,
+      },
+      image: `${basePath}/${fileName}`,
+      // images: Images,
+      category: req.body.category,
+      countInStock: req.body.countInStock,
+      price: req.body.price,
     });
 
-    await product.save();
+    product = await product.save();
 
-    res.status(201).json({
-      message: "Product created successfully",
-      product,
-    });
+    if (!product) return res.status(500).send("The product cannot be created");
+
+    res.send(product);
   } catch (err) {
+    console.log(err);
     next(err);
   }
 };
 
-// Update a product
+// =============================UPDATING PRODUCT=================================
 const updateProduct = async (req, res, next) => {
-  try {
-    const {
-      name,
-      description,
-      attribute,
-      price,
-      quantity,
-      wishlist,
-      category_id,
-    } = req.body;
-    const productId = req.params.productId;
-
-    const product = await Product.findById(productId);
-
-    // Upload new feature image to Cloudinary if provided
-    if (req.file) {
-      const feature_image = await cloudinary.uploader.upload(req.file.path);
-      product.feature_image = feature_image.secure_url;
-    }
-
-    // Upload new group images to Cloudinary if provided
-    if (req.files) {
-      const results = await Promise.all(
-        req.files.map((file) => cloudinary.uploader.upload(file.path))
-      );
-      product.group_images = results.map((result) => result.secure_url);
-    }
-
-    product.name = name;
-    product.description = description;
-    product.attribute = attribute;
-    product.price = price;
-    product.quantity = quantity;
-    product.wishlist = wishlist;
-    product.category_id = category_id;
-
-    await product.save();
-
-    res.status(200).json({
-      message: "Product updated successfully",
-      product,
-    });
-  } catch (err) {
-    next(err);
+  if (!mongoose.isValidObjectId(req.params.id)) {
+    return res.status(400).send("Invalid Product Id");
   }
+  const category = await Category.findById(req.body.category);
+  if (!category) return res.status(400).send("Invalid Category");
+
+  const product = await Product.findByIdAndUpdate(
+    req.params.id,
+    {
+      name: req.body.name,
+      description: req.body.description,
+      attribute: {
+        size: req.body.size,
+        color: req.body.color,
+      },
+      image: req.body.image,
+      category: req.body.category,
+      countInStock: req.body.countInStock,
+      price: req.body.price,
+    },
+    { new: true }
+  );
+
+  if (!product) return res.status(500).send("the product cannot be updated!");
+
+  res.send(product);
 };
 
-// Delete a product
+// =============================DELETING PRODUCT=================================
+
 const deleteProduct = async (req, res, next) => {
   try {
-    const productId = req.params.productId;
+    const deletedProduct = await Product.findByIdAndRemove(req.params.id);
 
-    await Product.findByIdAndDelete(productId);
+    if (!deletedProduct)
+      return res.status(404).json({ message: "Product not found" });
 
-    res.status(200).json({
-      message: "Product deleted successfully",
-    });
+    res.status(200).json({ message: "Product deleted successfully" });
   } catch (err) {
     next(err);
   }
 };
 
-// Get all products
-const getProducts = async (req, res, next) => {
-  try {
-    const products = await Product.find().populate("category_id");
-
-    res.status(200).json({
-      products,
-    });
-  } catch (err) {
-    next(err);
-  }
-};
-
-// Get a product by ID
-const getProductById = async (req, res, next) => {
-  let{id} = req.params;
-  try {
-
-    const product = await Product.findOne({_id:id}).populate("category_id");
-
-    res.status(200).json({
-      product,
-    });
-  } catch (err) {
-    next(err);
-  }
-};
-
-
-// Get all products by category
-const getProductsByCategory = async (req, res, next) => {
-  let{category_Id} = req.params;
-  try {
-    const products = await Product.find({ category_id: category_Id });
-
-    res.status(200).json({
-      products,
-    });
-  } catch (err) {
-    next(err);
-  }
-};
-
-
-
-// Get all products by name
-const getProductsByName = async (req, res, next) => {
-  try {
-    const name = req.query.name;
-    const products = await Product.find({ name: new RegExp(name, "i") });
-
-    res.status(200).json({
-      products,
-    });
-  } catch (err) {
-    next(err);
-  }
-};
-
-// Add a product to the wishlist
-const addProductToWishlist = async (req, res, next) => {
-  try {
-    const productId = req.params.productId;
-    const { quantity } = req.body;
-    const userId = req.user.id; // assuming that the user ID is stored in the req.user object
-    const product = await Product.findById(productId);
-
-    if (!product) {
-      return res.status(404).json({
-        message: "Product not found",
-      });
-    }
-
-    // Check if the product already exists in the user's wishlist
-    const existingProductIndex = req.user.wishlist.findIndex(
-      (item) => item.productId.toString() === productId
-    );
-
-    if (existingProductIndex !== -1) {
-      // If the product already exists, update the quantity
-      req.user.wishlist[existingProductIndex].quantity += quantity;
-    } else {
-      // If the product doesn't exist, add it to the wishlist
-      req.user.wishlist.push({
-        productId,
-        quantity,
-      });
-    }
-
-    await req.user.save();
-
-    res.status(200).json({
-      message: "Product added to wishlist successfully",
-      wishlist: req.user.wishlist,
-    });
-  } catch (err) {
-    next(err);
-  }
-};
-
-// Remove a product from the wishlist
-const removeProductFromWishlist = async (req, res, next) => {
-  try {
-    const productId = req.params.productId;
-    const userId = req.user.id; // assuming that the user ID is stored in the req.user object
-    // Find the index of the product in the wishlist
-    const productIndex = req.user.wishlist.findIndex(
-      (item) => item.productId.toString() === productId
-    );
-
-    if (productIndex === -1) {
-      return res.status(404).json({
-        message: "Product not found in wishlist",
-      });
-    }
-
-    // Remove the product from the wishlist
-    req.user.wishlist.splice(productIndex, 1);
-
-    await req.user.save();
-
-    res.status(200).json({
-      message: "Product removed from wishlist successfully",
-      wishlist: req.user.wishlist,
-    });
-  } catch (err) {
-    next(err);
-  }
-};
-
+// =============================MODULE EXPORT=================================
 module.exports = {
   createProduct,
   updateProduct,
   deleteProduct,
   getProducts,
   getProductById,
-  getProductsByCategory,
+  getProductsByCategoryId,
+  getProductsByCategoryName,
   getProductsByName,
-  addProductToWishlist,
-  removeProductFromWishlist,
 };

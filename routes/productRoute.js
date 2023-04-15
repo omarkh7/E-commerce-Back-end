@@ -1,28 +1,28 @@
 const express = require("express");
 const router = express.Router();
+const upload = require("../middleware/uploadMiddleware.js");
 
 const {
   getProducts,
   getProductById,
-  getProductsByCategory,
+  getProductsByCategoryId,
+  getProductsByCategoryName,
   getProductsByName,
   createProduct,
-  addProductToWishlist,
   updateProduct,
   deleteProduct,
-  removeProductFromWishlist,
 } = require("../controllers/productController");
-
-
 
 router.get("/getproducts", getProducts);
 router.get("/getproductbyid/:id", getProductById);
-router.get("/getproductsbycategory/:id", getProductsByCategory);
-router.get("/getproductsbyname/", getProductsByName);
-router.post("/createproduct", createProduct);
-router.post("/addproducttowishlist", addProductToWishlist);
-router.put("/updateproduct/:id", updateProduct);
-router.delete("/deleteproduct:/id", deleteProduct);
-router.delete("/removeproductfromwishlist", removeProductFromWishlist);
+router.get("/getproductsbycategory/:categoryId", getProductsByCategoryId);
+router.get(
+  "/getproductsbycategoryname/:categoryName",
+  getProductsByCategoryName
+);
+router.get("/getproductsbyname/:name", getProductsByName);
+router.post("/createproduct", upload.single("image"), createProduct);
+router.put("/updateproduct/:id", upload.single("image"), updateProduct);
+router.delete("/deleteproduct/:id", deleteProduct);
 
 module.exports = router;

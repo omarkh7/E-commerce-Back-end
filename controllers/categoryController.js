@@ -9,7 +9,6 @@ const asyncHandler = require('express-async-handler');
 //getting all categories
 const getAllCategories = asyncHandler(async(req, res)=>{
     const all_Categories = await Category.find();
-
     res.status(200).json({
         message:"getting all Categories",
         status:200,
@@ -23,7 +22,6 @@ const getCategory = asyncHandler(async(req, res) => {
    
     const get_Category = await Category.findById(req.params.id);
     
-      // console.log(get_Category)
     if(!get_Category)
     {
           return res.status(400).send({error: 'Unable to find ID'})
@@ -47,7 +45,7 @@ const getCategory = asyncHandler(async(req, res) => {
   
     const id_product = req.body.product_id
 
-
+    
     if (!id_product) {
         return res.status(400).send({error: 'Please fill all fields'})
     }
@@ -112,3 +110,78 @@ module.exports = {
     updateCategory,
     eraseCategory
 }
+
+
+// const Category = require('../models/categoryModel');
+
+// // Get all categories
+// const getAllCategories = async (req, res) => {
+//     try {
+//         const categories = await Category.find();
+//         res.json(categories);
+//     } catch (err) {
+//         res.status(500).json({ message: err.message });
+//     }
+// }
+
+// // Get a single category by ID
+// const getCategory = async (req, res) => {
+//     try {
+//         const category = await Category.findById(req.params.id);
+//         res.json(category);
+//     } catch (err) {
+//         res.status(404).json({ message: 'Category not found' });
+//     }
+// }
+
+// // Create a new category
+// const postCategory = async (req, res) => {
+//     const category = new Category({
+//         name: req.body.name
+//     });
+//     try {
+//         const newCategory = await category.save();
+//         res.status(201).json(newCategory);
+//     } catch (err) {
+//         res.status(400).json({ message: err.message });
+//     }
+// }
+
+// // Update an existing category by ID
+// const updateCategory = async (req, res) => {
+//     try {
+//         const category = await Category.findById(req.params.id);
+//         if (category) {
+//             category.name = req.body.name || category.name;
+//             const updatedCategory = await category.save();
+//             res.json(updatedCategory);
+//         } else {
+//             res.status(404).json({ message: 'Category not found' });
+//         }
+//     } catch (err) {
+//         res.status(400).json({ message: err.message });
+//     }
+// }
+
+// // Delete a category by ID
+// const eraseCategory = async (req, res) => {
+//     try {
+//         const category = await Category.findById(req.params.id);
+//         if (category) {
+//             await category.remove();
+//             res.json({ message: 'Category deleted' });
+//         } else {
+//             res.status(404).json({ message: 'Category not found' });
+//         }
+//     } catch (err) {
+//         res.status(500).json({ message: err.message });
+//     }
+// }
+
+// module.exports = {
+//      getAllCategories,
+//     getCategory,
+//     postCategory,
+//     updateCategory,
+//     eraseCategory
+// };
