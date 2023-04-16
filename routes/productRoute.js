@@ -21,7 +21,7 @@ router.get(
   getProductsByCategoryName
 );
 router.get("/getproductsbyname/:name", getProductsByName);
-router.post("/createproduct", upload.single("image"), createProduct);
+router.post("/createproduct", upload.fields([{ name: 'image', maxCount: 1 }, { name: 'images', maxCount: 10 }]), createProduct);
 router.put("/updateproduct/:id", upload.single("image"), updateProduct);
 router.delete("/deleteproduct/:id", deleteProduct);
 
