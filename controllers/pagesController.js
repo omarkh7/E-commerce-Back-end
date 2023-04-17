@@ -31,9 +31,11 @@ const getPage = asyncHandler(async (req, res) => {
 });
 
 const postPage = asyncHandler(async (req, res) => {
-  // console.log("req" ,req.file)
+  console.log("req" ,req.files)
 
   const Pagess = req.body.type;
+  const basePath = `${req.protocol}://${req.get("host")}/images`;
+  const Images = req.files.map((file) => `${basePath}/${file.filename}`);
 
   if (!Pagess) {
     return res.status(400).send({ error: "Please fill all fields" });
@@ -43,7 +45,7 @@ const postPage = asyncHandler(async (req, res) => {
     type: Pagess,
     title: req.body.title,
     description: req.body.description,
-    image: req.file.filename,
+    images: Images,
   });
 
   res.status(200).json({
@@ -60,13 +62,15 @@ const updatePage = asyncHandler(async (req, res) => {
     if (!mongoose.isValidObjectId(req.params.id)) {
       return res.status(400).send("Invalid Page Id");
     }
-    console.log("BODY", req.body);
+
+    
+
     const page = await Pages.findByIdAndUpdate(
       req.params.id,
       {
         title: req.body.title,
         description: req.body.description,
-        image: req.body.image,
+        images: req.files.map((image) => image.path),
         type: req.body.type,
       },
       { new: true }

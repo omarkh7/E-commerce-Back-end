@@ -126,9 +126,11 @@ const updateProduct = async (req, res, next) => {
   if (!mongoose.isValidObjectId(req.params.id)) {
     return res.status(400).send("Invalid Product Id");
   }
-  const category = await Category.findById(req.body.category);
-  if (!category) return res.status(400).send("Invalid Category");
+  // const category = await Category.findById(req.body.category);
+  // if (!category) return res.status(400).send("Invalid Category");
 
+  
+  
   const product = await Product.findByIdAndUpdate(
     req.params.id,
     {
@@ -138,7 +140,8 @@ const updateProduct = async (req, res, next) => {
         size: req.body.size,
         color: req.body.color,
       },
-      image: req.body.image,
+      image: req.files["image"][0].path,
+      images: req.files["images"].map((image) => image.path),
       category: req.body.category,
       countInStock: req.body.countInStock,
       price: req.body.price,

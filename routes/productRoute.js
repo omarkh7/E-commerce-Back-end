@@ -22,7 +22,7 @@ router.get(
 );
 router.get("/getproductsbyname/:name", getProductsByName);
 router.post("/createproduct", upload.fields([{ name: 'image', maxCount: 1 }, { name: 'images', maxCount: 10 }]), createProduct);
-router.put("/updateproduct/:id", upload.single("image"), updateProduct);
+router.put("/updateproduct/:id", upload.fields([{ name: 'image', maxCount: 1 }, { name: 'images', maxCount: 10 }]), updateProduct);
 router.delete("/deleteproduct/:id", deleteProduct);
 
 module.exports = router;
