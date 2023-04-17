@@ -27,7 +27,7 @@ app.use(express.json());
 app.use("/api/pages", pagesRoute)
 app.use("/api/category", CategoryRoute)
 app.use('/api',orderRoute);
-app.use('/api', userRoute);
+app.use('/api/users', userRoute);
 app.use('/api/products', productsRoute);
 
 app.listen(PORT, () => {
