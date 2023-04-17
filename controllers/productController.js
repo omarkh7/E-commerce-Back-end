@@ -129,8 +129,8 @@ const updateProduct = async (req, res, next) => {
   // const category = await Category.findById(req.body.category);
   // if (!category) return res.status(400).send("Invalid Category");
 
-  
-  
+
+
   const product = await Product.findByIdAndUpdate(
     req.params.id,
     {
