@@ -25,6 +25,10 @@ exports.isAuthenticated = asyncHandler(async (req, res, next) => {
                 return res.status(401).json({ message: 'User not found' });
             }
 
+              // Check user's role
+              if (!user.role || !allowedRoles.includes(user.role)) {
+                return res.status(403).json({ message: 'Forbidden' });
+            } 
             req.user = user
 
             next();
