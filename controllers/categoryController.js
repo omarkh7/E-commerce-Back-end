@@ -1,6 +1,8 @@
 const Category = require("../models/categoryModel.js");
 const Product = require("../models/productModel.js");
 const asyncHandler = require("express-async-handler");
+const mongoose = require("mongoose");
+
 //   =====================IMPORTING===============================
 
 //   =====================GET ALL CATEGORY ===============================
@@ -29,42 +31,62 @@ const getCategory = asyncHandler(async (req, res) => {
 });
 
 //   =====================CREATE CATEGORY===============================
+// const postCategory = asyncHandler(async (req, res) => {
+//   const { name } = req.body.name;
+//   const basePath = `${req.protocol}://${req.get("host")}/images`;
+//   const fileName = image.filename;
+
+//   const image = req.files.images[0];
+//       if (!name) {
+//     return res
+//       .status(400)
+//       .json({ error: "Please provide a category name", status: 400 });
+//   }
+
+//   const newCategory = await Category.create({
+//      name ,
+  
+//     image: `${basePath}/${fileName}`,
+    
+//   });
+
+//   res.status(201).json({
+//     message: "Category created successfully",
+//     status: 201,
+//     data: newCategory,
+//   });
+// });
+
 const postCategory = asyncHandler(async (req, res) => {
-  const { name } = req.body;
-
-  if (!name) {
-    return res
-      .status(400)
-      .json({ error: "Please provide a category name", status: 400 });
+  try {
+    const { name } = req.body;
+    const category = new Category({
+      name,
+      image: req.file.path
+    });
+    const savedCategory = await category.save();
+    res.status(201).json(savedCategory);
+  } catch (err) {
+    next(err);
   }
-
-  const newCategory = await Category.create({ name });
-
-  res.status(201).json({
-    message: "Category created successfully",
-    status: 201,
-    data: newCategory,
-  });
 });
-
 //   =====================UPDATING CATEGORY===============================
 const updateCategory = asyncHandler(async (req, res) => {
-  const CategoryId = req.params.id;
-  const update = await Category.findById(CategoryId);
-
-  if (!update) {
-    return res.status(400).json({ error: "unable to find id" });
+  try {
+    const { name } = req.body;
+    const category = await Category.findById(req.params.id);
+    if (!category) {
+      return res.status(404).json({ message: 'Category not found' });
+    }
+    category.name = name || category.name;
+    if (req.file) {
+      category.image = req.file.path;
+    }
+    const updatedCategory = await category.save();
+    res.json(updatedCategory);
+  } catch (err) {
+    next(err);
   }
-
-  const newUpdate = await Category.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-  });
-
-  res.status(200).json({
-    message: "Updated a specific Category",
-    status: 200,
-    data: newUpdate,
-  });
 });
 
 //   =====================DELETE CATEGORY===============================
