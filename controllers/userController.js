@@ -5,9 +5,9 @@ const User = require("../models/userModels");
 
 // ================================REGISTER USER==============================
 const registerUser = asyncHandler(async (req, res) => {
-  const { fullName, email, password, Location, phoneNumber, role } = req.body;
+  const { fullName, email, password, location, phoneNumber } = req.body;
 
-  if (!fullName || !email || !password || !Location || !phoneNumber || !role) {
+  if (!fullName || !email || !password || !location || !phoneNumber) {
     res.status(400).send({ message: "Please add all fields" });
   }
 
@@ -33,9 +33,9 @@ const registerUser = asyncHandler(async (req, res) => {
     fullName,
     email,
     password: hashedPassword,
-    Location,
+    location,
     phoneNumber,
-    role,
+
   });
 
   if (user) {
@@ -47,6 +47,7 @@ const registerUser = asyncHandler(async (req, res) => {
   } else {
     res.status(400).send({ message: "Invalid user data" });
   }
+  // res.status(400).send({ message: "succesfully registered" });
 });
 
 // ================================LOGIN USER==============================
@@ -56,18 +57,30 @@ const registerUser = asyncHandler(async (req, res) => {
 const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
   //check for admin email
-  const user = await User.findOne({ email });
-  if (user && (await bcrypt.compare(password, user.password))) {
-    res.json({
-      _id: user.id,
-      fullName: user.fullName,
-      email: user.email,
-      token: generateToken(user._id),
-    });
-  } else {
-    res.status(400).send({ message: "Invalid credentials" });
-  }
-});
+  User.findOne({ email: email }).then(user => {
+    if (!user) {
+      return res.status(404).json({
+        errors: [{ user: "not found" }],
+      });
+    } else {
+      bcrypt.compare(password, user.password).then(isMatch => {
+        if (!isMatch) {
+          return res.status(400).json({
+            errors: [{
+              password:
+                "incorrect"
+            }]
+          });
+        } else {
+          res.json({
+            token: generateToken(user._id)
+          })
+        }
+      })
+    }
+  })
+})
+
 
 // Generate JWT
 const generateToken = (id) => {

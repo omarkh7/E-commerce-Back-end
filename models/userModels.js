@@ -12,7 +12,7 @@ const userSchema = new Schema({
         type: String,
         required: true,
         unique: true,
-        validate:[isEmail,'Please enter a valid email.']
+        validate: [isEmail, 'Please enter a valid email.']
     },
     password: {
         type: String,
@@ -22,21 +22,30 @@ const userSchema = new Schema({
         type: Number,
         required: true
     },
-    Location: {
+    location: {
         type: String,
         required: true
     },
     role: {
-            type: String,
-            enum: ["user", "admin"],
-            default: "user",
-        
-        
+        type: String,
+        enum: ["user", "admin"],
+        default: "user",
+
+
     },
 
 });
 
+// userSchema.pre('save', async function (next) {
+//     if (!this.isModified('password')) {
+//        next()
+//     }
+//     this.password=await bcrypt.hash(this.password,10)
+// });
 
+// userSchema.methods.comparePassword = async function (oldPassword) {
+//     return await bcrypt.compare(oldPassword, this.password);
+// }
 
 const User = mongoose.model('User', userSchema);
 module.exports = User;
