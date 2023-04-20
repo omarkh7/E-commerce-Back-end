@@ -6,47 +6,21 @@ const asyncHandler = (fn) => (req, res, next) =>
 // =============================IMPORTING=================================
 
 // =============================GET PRODUCT=================================
-// const getProducts = asyncHandler(async (req, res, next) => {
-//   let filter = {};
-//   if (req.query.categories) {
-//     filter = { category: req.query.categories.split(",") };
-//   }
-
-//   const productList = await Product.find(filter).populate("category");
-
-//   if (!productList) {
-//     res.status(500).json({ success: false });
-//   }
-
-//   res.status(200).json({ success: true, productList });
-// });
-
 const getProducts = asyncHandler(async (req, res, next) => {
-  // Check user's role
-  const allowedRoles = ['user', 'admin'];
-  if (!req.user.role || !allowedRoles.includes(req.user.role)) {
-    return res.status(403).json({ message: 'Forbidden' });
-  }
-
   let filter = {};
   if (req.query.categories) {
     filter = { category: req.query.categories.split(",") };
   }
 
-  if (req.user.role === 'admin') {
-    // Display all products for admin users
-    const productList = await Product.find(filter).populate("category");
+  const productList = await Product.find(filter).populate("category");
 
-    if (!productList) {
-      res.status(500).json({ success: false });
-    }
-
-    res.status(200).json({ success: true, productList });
-  } else {
-    // Regular users are not authorized to view products
-    res.status(401).json({ success: false, message: 'You are unauthorized to view products' });
+  if (!productList) {
+    res.status(500).json({ success: false });
   }
+
+  res.status(200).json({ success: true, productList });
 });
+
 
 
 

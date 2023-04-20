@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const upload = require("../middleware/uploadMiddleware.js");
-    const {isAuthenticated} = require("../middleware/userAuthMiddleware");
+    // const {isAuthenticated} = require("../middleware/userAuthMiddleware");
 
 const {
   getProducts,
@@ -14,7 +14,7 @@ const {
   deleteProduct,
 } = require("../controllers/productController");
 
-router.get("/getproducts",isAuthenticated, getProducts);
+router.get("/getproducts", getProducts);
 router.get("/getproductbyid/:id", getProductById);
 router.get("/getproductsbycategory/:categoryId", getProductsByCategoryId);
 router.get(
