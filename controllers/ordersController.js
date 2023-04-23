@@ -10,6 +10,7 @@ const Product = require('../models/productModel');
 exports.newOrder = asyncHandler(async (req, res, next) => {
 
     try {
+        
         const {
             status,
             payment_status,
@@ -48,7 +49,7 @@ exports.newOrder = asyncHandler(async (req, res, next) => {
         const total_price = cart.reduce((total, item) => {
             return total + item.price * item.countInStock;
         }, 0);
-
+        
         const order = await Order.create({
             user_id: req.user,
             status,
@@ -57,6 +58,7 @@ exports.newOrder = asyncHandler(async (req, res, next) => {
             total_price,
 
         });
+
 
         res.status(200).json({ success: 'Order is created', order })
     }
@@ -74,7 +76,7 @@ exports.newOrder = asyncHandler(async (req, res, next) => {
 ///*******/
 exports.getSingleOrder = asyncHandler(async (req, res, next) => {
     try {
-        const order = await Order.findById(req.params.id).populate('cart.product_id');
+        const order = await Order.findById(req.params.id).populate('cart.product_id').populate('user_id');
 
         if (!order) return res.json({ message: "Not an order" })
 
@@ -96,7 +98,7 @@ exports.getSingleOrder = asyncHandler(async (req, res, next) => {
 exports.getAllOrders = asyncHandler(async (req, res, next) => {
 
     try {
-        const orders = await Order.find().populate('cart.product_id');
+        const orders = await Order.find().populate('cart.product_id').populate('user_id');
 
         if (!orders) return res.json({ message: "No orders" })
 
