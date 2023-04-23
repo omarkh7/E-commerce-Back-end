@@ -19,7 +19,6 @@ exports.newOrder = asyncHandler(async (req, res, next) => {
 
         const orderItems = [];
 
-        console.log(cart)
 
         if (!cart ) {
             return res.status(400).json({ error: 'Cart is not defined' });
