@@ -10,64 +10,68 @@ const Product = require('../models/productModel');
 exports.newOrder = asyncHandler(async (req, res, next) => {
 
     try {
-        
-        const {
-            status,
-            payment_status,
-            cart,
-        } = req.body;
-
+        const { status, payment_status, cart, } = req.body;
+      
         const orderItems = [];
 
-
-        if (!cart ) {
+        if (!cart) {
             return res.status(400).json({ error: 'Cart is not defined' });
         }
-        //loop in the cart to check the countInStock available of each product 
+
+       
         for (let i = 0; i < cart.length; i++) {
-            const product = await Product.findById(cart[i].product_id)
+            const product = await Product.findById(cart[i].product_id);
+            const quantity = cart[i].quantity;
 
-            if (product.countInStock < cart[i].countInStock) {
-                return res.status(400).json({ error: `The requested countInStock ${product.name} is not available` })
-            }
-
-            //Decrease the countInStock of product 
-            product.countInStock -= cart[i].countInStock;
-            await product.save();
-
-
-            orderItems.push({
-                product_id: product._id,
-                price: product.price,
-                countInStock: cart[i].countInStock
+            const productAttribute = product.attribute.find((attribute) => {
+                return attribute.size ==cart[i].size && attribute.color == cart[i].color
             });
 
+            if (!productAttribute) {
+                return res.status(400).json(
+                    {
+                        error: `The requested attribute of ${product.name} is not available`
+                    })
+            }
+
+            if (productAttribute.quantity < quantity) {
+                return res.status(400).json(
+                    {
+                        error: `The requested quantity of ${product.name} is not available`
+                    })
+            }
+
+        
+            productAttribute.quantity -= quantity;
+
+            await product.save();
+
+            orderItems.push(
+                {product_id: product._id,size: productAttribute.size,  color: productAttribute.color,quantity: quantity, price: product.price }
+            );
         }
 
-        //Calculate the total price of each order
         const total_price = cart.reduce((total, item) => {
-            return total + item.price * item.countInStock;
+            return total + item.price * item.quantity;
         }, 0);
-        
+
         const order = await Order.create({
             user_id: req.user,
             status,
             payment_status,
             cart: orderItems,
-            total_price,
-
+            total_price
         });
 
+        res.status(200).json({ success: 'Order is created', order });
 
-        res.status(200).json({ success: 'Order is created', order })
-    }
 
-    catch (error) {
+    } catch (error) {
         console.error(error);
         return res.status(500).json({ error: 'Server error' });
     }
-
 });
+
 
 
 
@@ -133,13 +137,11 @@ exports.deleteOrder = asyncHandler(async (req, res, next) => {
 //*********************************Update order by id***********************************///
 ///********/
 exports.updateOrderCart = asyncHandler(async (req, res, next) => {
-
     const cart = req.body.cart;
     const status = req.body.status;
     const payment_status = req.body.payment_status;
 
     const order = await Order.findById(req.params.id);
-
 
     if (!order) {
         return res.status(404).json({ message: "Order not found" });
@@ -147,40 +149,48 @@ exports.updateOrderCart = asyncHandler(async (req, res, next) => {
 
     const orderItems = [];
 
-    //loop in the cart to check the countInStock available of each product 
+    
     for (let i = 0; i < cart.length; i++) {
-        const product = await Product.findById(cart[i].product_id)
+        const product = await Product.findById(cart[i].product_id);
 
-        if (product.countInStock < cart[i].countInStock) {
-            return res.status(400).json({ error: `The requested countInStock ${product.name} is not available` })
+        const productAttribute = product.attribute.find((attribute) => {
+            return attribute.size == cart[i].size && attribute.color == cart[i].color;
+        });
+
+        if (!productAttribute) {
+            return res.status(400).json({
+                error: `The requested attribute of ${product.name} is not available`
+            });
         }
 
-        //Decrease the countInStock of product 
-        product.countInStock -= cart[i].countInStock;
-        await product.save();
+        if (productAttribute.quantity < cart[i].quantity) {
+            return res.status(400).json({
+                error: `The requested quantity of ${product.name} is not available`
+            });
+        }
 
+        productAttribute.quantity -= cart[i].quantity;
+        await product.save();
 
         orderItems.push({
             product_id: product._id,
+            size: cart[i].size,
+            color: cart[i].color,
+            quantity: cart[i].quantity,
             price: product.price,
-            countInStock: cart[i].countInStock
         });
-
     }
 
-    const total_price = cart.reduce((total, item) => {
-        return total + item.price * item.countInStock;
+    const total_price = orderItems.reduce((total, item) => {
+        return total + item.price * item.quantity;
     }, 0);
 
-
     order.total_price = total_price;
-    order.cart = cart;;
+    order.cart = orderItems;
     order.status = status;
     order.payment_status = payment_status;
 
-
     const updatedOrder = await order.save();
-
 
     // Populate the cart.product_id field in the updated order object
     await Order.findById(updatedOrder._id).populate('cart.product_id');
