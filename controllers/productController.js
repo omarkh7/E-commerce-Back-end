@@ -183,7 +183,7 @@ const updateProduct = async (req, res, next) => {
         size: req.body.size,
         color: req.body.color,
       },
-      image: req.files["image"][0].path,
+      image: req.files["images"][0].path,
       images: req.files["images"].map((image) => image.path),
       category: req.body.category,
       countInStock: req.body.countInStock,
