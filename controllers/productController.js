@@ -31,8 +31,9 @@ const getProductById = asyncHandler(async (req, res, next) => {
   if (!product) {
     res.status(500).json({ success: false });
   }
-  res.send(product);
+  res.status(200).json({  product });
 });
+
 
 // =============================GET PRODUCT BY NAME================================
 const getProductsByName = asyncHandler(async (req, res, next) => {
@@ -87,42 +88,81 @@ const getProductsByCategoryName = async (req, res, next) => {
 };
 
 // =============================CREATING PRODUCT=================================
+// const createProduct = async (req, res, next) => {
+//   try {
+
+//     const category = await Category.findById(req.body.category);
+//     if (!category) return res.status(400).send("Invalid Category");
+
+//     const image = req.files.images[0];
+//     const fileName = image.filename;
+//     const basePath = `${req.protocol}://${req.get("host")}/images`;
+//     const Images = req.files.images.map((file) => `${basePath}/${file.filename}`);
+
+
+//     let product = new Product({
+//       name: req.body.name,
+//       description: req.body.description,
+//       attribute: {
+//         size: req.body.size,
+//         color: req.body.color,
+//       },
+//       image: `${basePath}/${fileName}`,
+//       images: Images,
+//       category: req.body.category,
+//       countInStock: req.body.countInStock,
+//       price: req.body.price,
+//     });
+
+//     product = await product.save();
+
+//     if (!product) return res.status(500).send("The product cannot be created");
+
+//     res.send(product);
+//   } catch (err) {
+//     console.log(err);
+//     next(err);
+//   }
+// };
+
 const createProduct = async (req, res, next) => {
   try {
-
     const category = await Category.findById(req.body.category);
     if (!category) return res.status(400).send("Invalid Category");
 
     const image = req.files.images[0];
     const fileName = image.filename;
     const basePath = `${req.protocol}://${req.get("host")}/images`;
-    const Images = req.files.images.map((file) => `${basePath}/${file.filename}`);
+    const images = req.files.images.map((file) => `${basePath}/${file.filename}`);
 
+    const attribute = req.body.size.map((size, i) => ({
+      size,
+      color: req.body.color[i],
+    }));
 
-    let product = new Product({
+    const product = new Product({
       name: req.body.name,
       description: req.body.description,
-      attribute: {
-        size: req.body.size,
-        color: req.body.color,
-      },
+      attribute: attribute,
       image: `${basePath}/${fileName}`,
-      images: Images,
+      images: images,
       category: req.body.category,
       countInStock: req.body.countInStock,
       price: req.body.price,
     });
 
-    product = await product.save();
+    const createdProduct = await product.save();
 
-    if (!product) return res.status(500).send("The product cannot be created");
+    if (!createdProduct) return res.status(500).send("The product cannot be created");
 
-    res.send(product);
+    res.send(createdProduct);
   } catch (err) {
     console.log(err);
     next(err);
   }
 };
+
+
 
 // =============================UPDATING PRODUCT=================================
 const updateProduct = async (req, res, next) => {

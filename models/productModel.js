@@ -14,8 +14,14 @@ const productSchema = new Schema({
   },
 
   attribute: [{
-    size: Number,
-    color: String,
+    size: {
+      type: [Number],
+      required: true,
+    },
+    color: {
+      type: [String],
+      required: true,
+    },
   }],
 
   image: {
