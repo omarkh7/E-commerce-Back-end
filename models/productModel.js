@@ -13,16 +13,23 @@ const productSchema = new Schema({
     required: true,
   },
 
-  attribute: [{
-    size: {
-      type: [Number],
-      required: true,
+  attribute: [
+    {
+      size: {
+        type: Number,
+        required: true,
+      },
+      color: {
+        type: String,
+        required: true,
+      },
+      quantity: {
+        type: Number,
+        required: true,
+        min: 0,
+      },
     },
-    color: {
-      type: [String],
-      required: true,
-    },
-  }],
+  ],
 
   image: {
     type: String,
@@ -45,7 +52,6 @@ const productSchema = new Schema({
     type: Number,
     required: true,
     min: 0,
-    max: 255,
   },
 
   price: {
