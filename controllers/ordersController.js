@@ -1,6 +1,8 @@
 const Order = require('../models/ordersModel')
 const asyncHandler = require('express-async-handler');
 const Product = require('../models/productModel');
+const { LocalStorage } = require('node-localstorage');
+const localStorage = new LocalStorage('./test');
 
 
 
@@ -199,6 +201,103 @@ exports.updateOrderCart = asyncHandler(async (req, res, next) => {
 });
 
 
+
+
+////**********Add to cart  */
+
+///
+exports.addToCart = asyncHandler(async (req, res, next) => {
+    const products = req.body.products;
+
+    let cart = localStorage.getItem('cart') ? JSON.parse(localStorage.getItem('cart')) : [];
+
+    for (let i = 0; i < products.length; i++) {
+        // const { productId, size, color, quantity } = products[i];
+        const product = await Product.findById(products[i].product_id);
+
+
+        if (!product) {
+            return res.status(404).json({ error: `Product with id ${products[i].product_id} not found` });
+        }
+
+
+        const productAttribute = product.attribute.find(
+            (attribute) => attribute.size == products[i].size && attribute.color == products[i].color
+        );
+
+
+        if (!productAttribute) {
+            return res
+                .status(400)
+                .json({ error: `The requested attribute of ${product.name} is not available` });
+        }
+
+        if (productAttribute.quantity < products[i].quantity) {
+            return res
+                .status(400)
+                .json({ error: `The requested quantity of ${product.name} is not available` });
+        }
+
+        const existingItem = cart.findIndex(
+            (item) => item.productId == products[i].product_id &&
+                item.size == products[i].size &&
+                item.color == products[i].color
+        );
+
+        if (existingItem !==-1) {
+            cart[existingItem].quantity += products[i].quantity;
+        } else {
+            cart.push({
+                productId: products[i].product_id,
+                size: products[i].size,
+                color: products[i].color,
+                quantity: products[i].quantity,
+                price: productAttribute.price,
+                name: product.name,
+                image: product.image,
+            });
+        }
+    }
+
+    // Save the updated cart in local storage
+    localStorage.setItem('cart', JSON.stringify(cart));
+    console.log(localStorage.getItem('cart'))
+
+    // const cart1 = JSON.parse(localStorage.getItem('cart'));
+
+    // console.log(cart1);
+
+    res.status(200).json({ message: "Products added to cart successfully", cart });
+});
+
+
+///in the body i should specify {size:,color} and in the path the index
+exports.removeFromCart = asyncHandler(async (req, res, next) => {
+    const productId = req.params.id;
+    const { size, color } = req.body;
+
+    // Get the cart from local storage
+    let cart = localStorage.getItem('cart') ? JSON.parse(localStorage.getItem('cart')) : [];
+
+    // Find the index of the item to remove
+    const index = cart.findIndex(
+        (item) => item.productId === productId && item.size === size && item.color === color
+    );
+
+    if (index !== 0) {
+        // Remove the item from the cart
+        cart.splice(index, 1);
+
+        // Save the updated cart in local storage
+        localStorage.setItem('cart', JSON.stringify(cart));
+
+        res.status(200).json({ message: "Product removed from cart successfully", cart });
+
+    } else {
+        // If the item is not found in the cart, return an error
+        res.status(404).json({ error: "Product not found in cart" });
+    }
+});
 
 
 
