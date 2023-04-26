@@ -19,15 +19,26 @@ const orderSchema = new Schema({
         default: false
     },
     cart: [{
-        product_id: [
-            {
-                type:Schema.Types.ObjectId,
-                ref: 'Product'
-            }
-        ], countInStock: {
-            type: Number
-        }, price: {
-            type: Number
+        product_id: {
+            type: Schema.Types.ObjectId,
+            ref: 'Product'
+        },
+        size: {
+            type: Number,
+            required: true
+        },
+        color: {
+            type: String,
+            required: true
+        },
+        quantity: {
+            type: Number,
+            required: true,
+            min: 0
+        },
+        price: {
+            type: Number,
+            required: true
         }
     }],
     total_price: {
