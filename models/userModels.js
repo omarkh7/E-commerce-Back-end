@@ -12,7 +12,7 @@ const userSchema = new Schema({
         type: String,
         required: true,
         unique: true,
-        validate:[isEmail,'Please enter a valid email.']
+        validate: [isEmail, 'Please enter a valid email.']
     },
     password: {
         type: String,
@@ -22,16 +22,16 @@ const userSchema = new Schema({
         type: Number,
         required: true
     },
-    Location: {
+    location: {
         type: String,
         required: true
     },
     role: {
-            type: String,
-            enum: ["user", "admin"],
-            default: "user",
-        
-        
+        type: String,
+        enum: ["user", "admin"],
+        default: "user",
+
+
     },
 
 });
