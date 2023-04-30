@@ -84,9 +84,7 @@ const loginUser = asyncHandler(async (req, res) => {
 
 // Generate JWT
 const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.ACCESS_TOKEN_SECRET, {
-    expiresIn: process.env.ACCESS_TOKEN_SECRET_EXPIRE,
-  });
+  return jwt.sign({ id }, process.env.ACCESS_TOKEN_SECRET);
 };
 // ================================LOGOUT==============================
 const logoutUser = asyncHandler(async (req, res) => {
