@@ -12,7 +12,7 @@ const localStorage = new LocalStorage('./test');
 exports.newOrder = asyncHandler(async (req, res, next) => {
 
     try {
-        const { status, payment_status, cart, } = req.body;
+        const {  cart, } = req.body;
       
         const orderItems = [];
 
@@ -26,9 +26,10 @@ exports.newOrder = asyncHandler(async (req, res, next) => {
             const quantity = cart[i].quantity;
 
             const productAttribute = product.attribute.find((attribute) => {
+                
                 return attribute.size ==cart[i].size && attribute.color == cart[i].color
             });
-
+            
             if (!productAttribute) {
                 return res.status(400).json(
                     {
@@ -49,7 +50,7 @@ exports.newOrder = asyncHandler(async (req, res, next) => {
             await product.save();
 
             orderItems.push(
-                {product_id: product._id,size: productAttribute.size,  color: productAttribute.color,quantity: quantity, price: product.price }
+                {product_id: product._id,size: productAttribute.size,  color: productAttribute.color,quantity: quantity, price: product.price ,name:product.name,image:product.image}
             );
         }
 
@@ -59,8 +60,6 @@ exports.newOrder = asyncHandler(async (req, res, next) => {
 
         const order = await Order.create({
             user_id: req.user,
-            status,
-            payment_status,
             cart: orderItems,
             total_price
         });
