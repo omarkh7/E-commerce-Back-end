@@ -138,7 +138,7 @@ exports.deleteOrder = asyncHandler(async (req, res, next) => {
 //*********************************Update order by id***********************************///
 ///********/
 exports.updateOrderCart = asyncHandler(async (req, res, next) => {
-    const cart = req.body.cart;
+    // const cart = req.body.cart;
     const status = req.body.status;
     const payment_status = req.body.payment_status;
 
@@ -148,46 +148,46 @@ exports.updateOrderCart = asyncHandler(async (req, res, next) => {
         return res.status(404).json({ message: "Order not found" });
     }
 
-    const orderItems = [];
+    // const orderItems = [];
 
     
-    for (let i = 0; i < cart.length; i++) {
-        const product = await Product.findById(cart[i].product_id);
+    // for (let i = 0; i < cart.length; i++) {
+    //     const product = await Product.findById(cart[i].product_id);
 
-        const productAttribute = product.attribute.find((attribute) => {
-            return attribute.size == cart[i].size && attribute.color == cart[i].color;
-        });
+    //     const productAttribute = product.attribute.find((attribute) => {
+    //         return attribute.size == cart[i].size && attribute.color == cart[i].color;
+    //     });
 
-        if (!productAttribute) {
-            return res.status(400).json({
-                error: `The requested attribute of ${product.name} is not available`
-            });
-        }
+    //     if (!productAttribute) {
+    //         return res.status(400).json({
+    //             error: `The requested attribute of ${product.name} is not available`
+    //         });
+    //     }
 
-        if (productAttribute.quantity < cart[i].quantity) {
-            return res.status(400).json({
-                error: `The requested quantity of ${product.name} is not available`
-            });
-        }
+    //     if (productAttribute.quantity < cart[i].quantity) {
+    //         return res.status(400).json({
+    //             error: `The requested quantity of ${product.name} is not available`
+    //         });
+    //     }
 
-        productAttribute.quantity -= cart[i].quantity;
-        await product.save();
+    //     productAttribute.quantity -= cart[i].quantity;
+    //     await product.save();
 
-        orderItems.push({
-            product_id: product._id,
-            size: cart[i].size,
-            color: cart[i].color,
-            quantity: cart[i].quantity,
-            price: product.price,
-        });
-    }
+    //     orderItems.push({
+    //         product_id: product._id,
+    //         size: cart[i].size,
+    //         color: cart[i].color,
+    //         quantity: cart[i].quantity,
+    //         price: product.price,
+    //     });
+    // }
 
-    const total_price = orderItems.reduce((total, item) => {
-        return total + item.price * item.quantity;
-    }, 0);
+    // const total_price = orderItems.reduce((total, item) => {
+    //     return total + item.price * item.quantity;
+    // }, 0);
 
-    order.total_price = total_price;
-    order.cart = orderItems;
+    // order.total_price = total_price;
+    // order.cart = orderItems;
     order.status = status;
     order.payment_status = payment_status;
 
