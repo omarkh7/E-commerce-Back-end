@@ -73,7 +73,8 @@ const loginUser = asyncHandler(async (req, res) => {
           });
         } else {
           res.json({
-            token: generateToken(user._id)
+            token: generateToken(user._id),
+            role: user.role
           })
         }
       })
