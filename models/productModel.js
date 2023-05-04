@@ -63,6 +63,10 @@ const productSchema = new Schema({
     type: Date,
     default: Date.now,
   },
+  is_new_release: {
+    type: Boolean,
+    default:false,
+  }
 });
 
 const Product = mongoose.model("Product", productSchema);

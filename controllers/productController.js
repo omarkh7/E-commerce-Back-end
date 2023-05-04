@@ -117,9 +117,18 @@ const createProduct = async (req, res, next) => {
       price: req.body.price,
     });
 
+
     product = await product.save();
 
     if (!product) return res.status(500).send("The product cannot be created");
+
+    const twoDaysAgo = new Date();
+    twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+    if (product.dateCreated >= twoDaysAgo) {
+      product.is_new_release = true;
+      await product.save();
+    }
+
 
     res.send(product);
   } catch (err) {
