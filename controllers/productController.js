@@ -89,23 +89,25 @@ const createProduct = async (req, res, next) => {
     const category = await Category.findById(req.body.category);
     if (!category) return res.status(400).send("Invalid Category");
 
-    const image = req.files.images[0];
-    const fileName = image.filename;
+    const image = req.files.image;
+
+     
+    const fileName = image[0].filename;
     const basePath = `${req.protocol}://${req.get("host")}/images`;
+    console.log('req', req.body)
+    console.log('req files', req.files.images)
     const Images = req.files.images.map(
       (file) => `${basePath}/${file.filename}`
     );
-    const attribute = req.body.size.map((size, i) => ({
-      size,
-      color: req.body.color[i],
-      quantity: parseInt(req.body.quantity[i]),
-    }));
 
+
+    const attribute = JSON.parse(req.body.attribute)
+   
     const countInStock = attribute.reduce(
       (total, item) => total + item.quantity,
       0
     );
-
+    
     let product = new Product({
       name: req.body.name,
       description: req.body.description,
@@ -116,7 +118,6 @@ const createProduct = async (req, res, next) => {
       countInStock: countInStock,
       price: req.body.price,
     });
-
 
     product = await product.save();
 
