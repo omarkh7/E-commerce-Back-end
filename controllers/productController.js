@@ -123,11 +123,13 @@ const createProduct = async (req, res, next) => {
 
     if (!product) return res.status(500).send("The product cannot be created");
 
-    const twoDaysAgo = new Date();
-    twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
-    if (product.dateCreated >= twoDaysAgo) {
+    if (product.dateCreated >= new Date(Date.now() - 300000)) {
       product.is_new_release = true;
       await product.save();
+      setTimeout(async () => {
+        product.is_new_release = false;
+        await product.save();
+      }, 300000); 
     }
 
 
